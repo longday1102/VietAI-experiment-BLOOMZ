@@ -56,7 +56,7 @@ class Trainer:
             current_steps = checkpoint["current_steps"]
             self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             num_steps = num_update_steps_per_epoch * self.epochs - current_steps
-            # progress_bar = tqdm(range(num_steps))
+            progress_bar = tqdm(range(num_steps))
             lr_scheduler = get_scheduler("cosine",
                                          optimizer = self.optimizer,
                                          num_warmup_steps = 0,
@@ -107,7 +107,7 @@ class Trainer:
                             self.optimizer.step()
                             lr_scheduler.step()
                     
-                    # progress_bar.update(1)
+                    progress_bar.update(1)
                     current_steps += 1
 
                     if current_steps % display_steps == 0:
