@@ -62,13 +62,13 @@ if __name__ == "__main__":
                       mixed_precision = mixed_precision,
                       scaler = scaler,
                       ctx = ctx)
-    
+    checkpoint = None
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
                   display_steps = 100,
                   save_steps = 1000,
                   save_name = "bloomz-1b7-checkpoint.pt",
                   save_checkpoint = True,
-                  checkpoint = None)
+                  checkpoint = checkpoint)
     
     destroy_process_group()
