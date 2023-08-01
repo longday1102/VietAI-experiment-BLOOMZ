@@ -13,8 +13,7 @@ class Trainer:
                  gpu_id,
                  mixed_precision,
                  scaler,
-                 ctx,
-                 dist):
+                 ctx):
         self.lr = lr
         self.epochs = epochs
         self.gpu_id = gpu_id
@@ -23,7 +22,6 @@ class Trainer:
         self.mixed_precision = mixed_precision
         self.scaler = scaler
         self.ctx = ctx
-        self.dist = dist
         self.optimizer = None
 
     def eval_(self, model, dataset):
@@ -92,8 +90,6 @@ class Trainer:
                         outputs = self.model(**batch)
 
                     loss = outputs.loss
-                    self.dist.all_reduce(loss)
-                    loss /= self.dist.get_world_size()
                     total_loss += loss.item()
 
                     loss /= self.gradient_accumulation_steps
