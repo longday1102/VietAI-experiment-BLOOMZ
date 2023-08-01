@@ -8,7 +8,6 @@ import os
 
 import torch
 from torch.distributed import destroy_process_group, init_process_group
-import torch.distributed as dist
 from torch.cuda.amp import GradScaler, autocast
 
 if __name__ == "__main__":
@@ -62,8 +61,7 @@ if __name__ == "__main__":
                       gpu_id = local_rank,
                       mixed_precision = mixed_precision,
                       scaler = scaler,
-                      ctx = ctx,
-                      dist = dist)
+                      ctx = ctx)
     checkpoint = None
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
