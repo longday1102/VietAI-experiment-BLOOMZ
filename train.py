@@ -121,7 +121,7 @@ class Trainer:
                     if save_checkpoint is True:
                         if current_steps % save_steps == 0:
                             print("Saving..........")
-                            torch.save({"model_state_dict": self.model.state_dict(),
+                            torch.save({"model_state_dict": self.model.module.state_dict(),
                                         "optimizer_state_dict": self.optimizer.state_dict(),
                                         "scaler_state_dict": self.scaler.state_dict(),
                                         "lr_scheduler_state_dict": lr_scheduler.state_dict(),
