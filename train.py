@@ -129,7 +129,4 @@ class Trainer:
                                         "total_loss": total_loss},
                                        save_name)
                             print("****** Save successfully ******")
-
-
-            
-
+                            
