@@ -49,7 +49,7 @@ class Trainer:
         
         num_update_steps_per_epoch = len(train_dataloader)
 
-        self.model = DDP(self.model, device_ids = [self.gpu_id], output_device = self.gpu_id)
+        self.model = DDP(self.model, device_ids = [self.gpu_id])
         self.optimizer = AdamW(self.model.parameters(), lr = self.lr, weight_decay = 0.06)
         
         if checkpoint is not None:
