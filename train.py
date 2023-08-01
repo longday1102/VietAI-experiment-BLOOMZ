@@ -69,7 +69,7 @@ class Trainer:
         else:
             current_steps = 0
             num_steps = num_update_steps_per_epoch * self.epochs
-            # progress_bar = tqdm(range(num_steps))
+            progress_bar = tqdm(range(num_steps))
             lr_scheduler = get_scheduler("cosine",
                                          optimizer = self.optimizer,
                                          num_warmup_steps = 100,
