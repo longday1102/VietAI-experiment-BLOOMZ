@@ -17,7 +17,7 @@ class Trainer:
         self.lr = lr
         self.epochs = epochs
         self.gpu_id = gpu_id
-        self.model = model.to(f"cuda: {self.gpu_id}")
+        self.model = model.to(f"cuda:{self.gpu_id}")
         self.gradient_accumulation_steps = gradient_accumulation_steps
         self.mixed_precision = mixed_precision
         self.scaler = scaler
