@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # Tokenizer and Model
     config = Config()
     tokenizer = config.tokenizer(model_checkpoint = "bigscience/bloomz")
-    model = config.load_pretrained_model(model_checkpoint = "bigscience/bloomz-1b7")
+    model = config.load_pretrained_model(model_checkpoint = "bigscience/bloomz-1b7", device_map = {"": torch.device(f"cuda:{local_rank}")})
     lora_model = config.add_lora(model = model, r = 8, lora_alpha = 16, lora_dropout = 0.05)
 
     # Dataset
