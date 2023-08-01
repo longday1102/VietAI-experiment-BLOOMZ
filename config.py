@@ -8,8 +8,8 @@ class Config:
         tok = AutoTokenizer.from_pretrained(model_checkpoint)
         return tok
     
-    def load_pretrained_model(self, model_checkpoint):
-        model = AutoModelForCausalLM.from_pretrained(model_checkpoint)
+    def load_pretrained_model(self, model_checkpoint, device_map):
+        model = AutoModelForCausalLM.from_pretrained(model_checkpoint, device_map = device_map)
         return model
     
     def add_lora(self, model, r: int, lora_alpha: int, lora_dropout: float):
