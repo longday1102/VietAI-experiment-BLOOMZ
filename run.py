@@ -5,13 +5,15 @@ from model_inputs import MODEL_INPUTS
 from train import Trainer
 
 import os 
+from argparse import ArgumentParser
 
 import torch
 from torch.distributed import destroy_process_group, init_process_group
 from torch.cuda.amp import GradScaler, autocast
 
 if __name__ == "__main__":
-
+    parser = ArgumentParser()
+    
     # Mixed precision
     mixed_precision = torch.float16 if torch.cuda.is_available() else torch.bfloat16
     ctx = autocast(dtype = mixed_precision)
@@ -62,12 +64,17 @@ if __name__ == "__main__":
                       mixed_precision = mixed_precision,
                       scaler = scaler,
                       ctx = ctx)
-    checkpoint = None
+    
+    parser.add_argument("--display_steps", default=200, type=int)
+    parser.add_argument("--save_name", required=True, type=str)
+    parser.add_argument("--checkpoint", default=None, type=str)
+    args = parser.parse_args()
+    
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
-                  display_steps = 200,
-                  save_name = "bloomz-1b7-checkpoint.pt",
+                  display_steps = args.display_steps,
+                  save_name = args.save_name,
                   save_checkpoint = True,
-                  checkpoint = checkpoint)
+                  checkpoint = args.checkpoint)
     
     destroy_process_group()
