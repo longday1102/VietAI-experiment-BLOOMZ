@@ -112,7 +112,6 @@ class Trainer:
 
                     if current_steps % display_steps == 0:
                         print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')
-                        print("-----------------------------------------------------")
                             
                     if current_steps % len(train_dataloader) == 0:
                         eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
@@ -120,7 +119,7 @@ class Trainer:
                         print("----------------------------- End of epoch {} -----------------------------".format(epoch + 1))
                         
                     if save_checkpoint is True:
-                        if current_steps % save_steps == 0:
+                        if current_steps % save_steps or current_steps % len(train_dataloader) == 0:
                             print("Saving..........")
                             torch.save({"model_state_dict": self.model.module.state_dict(),
                                         "optimizer_state_dict": self.optimizer.state_dict(),
