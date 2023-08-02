@@ -41,7 +41,6 @@ class Trainer:
               train_dataloader,
               valid_dataloader,
               display_steps: int,
-              save_steps: int,
               save_name: str = None,
               save_checkpoint: bool = False,
               checkpoint = None):
