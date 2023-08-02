@@ -55,7 +55,7 @@ if __name__ == "__main__":
     
     # Train
     trainer = Trainer(lr = 3e-4,
-                      epochs = 3,
+                      epochs = 1,
                       model = lora_model,
                       gradient_accumulation_steps = 4,
                       gpu_id = local_rank,
