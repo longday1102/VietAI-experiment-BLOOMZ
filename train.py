@@ -1,8 +1,9 @@
 import torch
 from torch.optim import AdamW
 from torch.nn.parallel import DistributedDataParallel as DDP
-from tqdm.auto import tqdm
+from tqdm import tqdm
 from transformers import get_scheduler
+import os
 
 class Trainer:
     def __init__(self,
@@ -24,10 +25,19 @@ class Trainer:
         self.ctx = ctx
         self.optimizer = None
 
+    def is_master_process(self):
+        ddp_rank = int(os.environ['RANK'])
+        return ddp_rank == 0
+        
     def eval_(self, model, dataset):
         model.eval()
         total_loss = 0
-        for batch in dataset:
+        if self.is_master_process():
+            eval_progress_bar = tqdm(dataset)
+        else:
+            eval_progress_bar = dataset
+            
+        for batch in eval_progress_bar:
             batch = {k:v.to(self.gpu_id) for k, v in batch.items()}
             with torch.no_grad():
                 with self.ctx:
@@ -81,7 +91,11 @@ class Trainer:
             
             train_dataloader.sampler.set_epoch(epoch)    
             self.model.train()
-            for batch in train_dataloader:
+            if self.is_master_process():
+                train_progress_bar = tqdm(train_dataloader)
+            else:
+                train_progress_bar = train_dataloader
+            for batch in train_progress_bar:
                 idx += 1
                 if idx > current_steps:
                     batch = {k:v.to(self.gpu_id) for k, v in batch.items()}
@@ -121,12 +135,21 @@ class Trainer:
                     if save_checkpoint is True:
                         if current_steps % save_steps == 0:
                             print("Saving..........")
-                            torch.save({"model_state_dict": self.model.module.state_dict(),
-                                        "optimizer_state_dict": self.optimizer.state_dict(),
-                                        "scaler_state_dict": self.scaler.state_dict(),
-                                        "lr_scheduler_state_dict": lr_scheduler.state_dict(),
-                                        "current_steps": current_steps,
-                                        "total_loss": total_loss},
-                                       save_name)
+                            if self.is_master_process():
+                                torch.save({"model_state_dict": self.model.module.state_dict(),
+                                            "optimizer_state_dict": self.optimizer.state_dict(),
+                                            "scaler_state_dict": self.scaler.state_dict(),
+                                            "lr_scheduler_state_dict": lr_scheduler.state_dict(),
+                                            "current_steps": current_steps,
+                                            "total_loss": total_loss},
+                                           save_name)
+                            else:
+                                torch.save({"model_state_dict": self.model.state_dict(),
+                                            "optimizer_state_dict": self.optimizer.state_dict(),
+                                            "scaler_state_dict": self.scaler.state_dict(),
+                                            "lr_scheduler_state_dict": lr_scheduler.state_dict(),
+                                            "current_steps": current_steps,
+                                            "total_loss": total_loss},
+                                           save_name)
                             print("****** Save successfully ******")
                             
