@@ -112,7 +112,7 @@ class Trainer:
 
                     if current_steps % display_steps == 0:
                         print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')
-                        print("-----------------------------------------------------"
+                        print("-----------------------------------------------------")
                             
                     if current_steps % len(train_dataloader) == 0:
                         eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
