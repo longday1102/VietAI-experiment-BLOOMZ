@@ -65,8 +65,7 @@ if __name__ == "__main__":
     checkpoint = None
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
-                  display_steps = 100,
-                  save_steps = 2000,
+                  display_steps = 200,
                   save_name = "bloomz-1b7-checkpoint.pt",
                   save_checkpoint = True,
                   checkpoint = checkpoint)
