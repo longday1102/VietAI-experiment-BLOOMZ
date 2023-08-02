@@ -32,7 +32,7 @@ class Trainer:
     def eval_(self, model, dataset):
         model.eval()
         total_loss = 0
-        for batch in dataset:
+        for batch in tqdm(dataset):
             batch = {k:v.to(self.gpu_id) for k, v in batch.items()}
             with torch.no_grad():
                 with self.ctx:
@@ -82,7 +82,7 @@ class Trainer:
             
             train_dataloader.sampler.set_epoch(epoch)    
             self.model.train()
-            for batch in train_dataloader:
+            for batch in tqdm(train_dataloader):
                 idx += 1
                 if idx > current_steps:
                     batch = {k:v.to(self.gpu_id) for k, v in batch.items()}
