@@ -26,8 +26,8 @@ class Trainer:
         self.optimizer = AdamW(self.model.parameters(), lr = lr, weight_decay = 0.06)
 
     def is_master_process(self):
-    ddp_rank = int(os.environ['RANK'])
-    return ddp_rank == 0
+        ddp_rank = int(os.environ['RANK'])
+        return ddp_rank == 0
 
     def eval_(self, model, dataset):
         model.eval()
