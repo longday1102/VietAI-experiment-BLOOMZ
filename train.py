@@ -14,7 +14,6 @@ class Trainer:
                  mixed_precision,
                  scaler,
                  ctx):
-        self.lr = lr
         self.epochs = epochs
         self.gpu_id = gpu_id
         self.model = model.to(f"cuda:{self.gpu_id}")
@@ -22,7 +21,7 @@ class Trainer:
         self.mixed_precision = mixed_precision
         self.scaler = scaler
         self.ctx = ctx
-        self.optimizer = None
+        self.optimizer = AdamW(self.model.parameters(), lr = lr, weight_decay = 0.06)
         
     def eval_(self, model, dataset):
         model.eval()
@@ -48,10 +47,7 @@ class Trainer:
               checkpoint = None):
         
         num_update_steps_per_epoch = len(train_dataloader)
-
-        self.model = DDP(self.model, device_ids = [self.gpu_id])
-        self.optimizer = AdamW(self.model.parameters(), lr = self.lr, weight_decay = 0.06)
-        
+                  
         if checkpoint is not None:
             current_steps = checkpoint["current_steps"]
             self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
@@ -64,6 +60,7 @@ class Trainer:
             lr_scheduler.load_state_dict(checkpoint["lr_scheduler_state_dict"])
             self.scaler.load_state_dict(checkpoint["scaler_state_dict"])
             self.model.load_state_dict(checkpoint["model_state_dict"])
+            self.model = DDP(self.model, device_ids = [self.gpu_id])
             total_loss = checkpoint["total_loss"]
 
         else:
@@ -74,6 +71,7 @@ class Trainer:
                                          optimizer = self.optimizer,
                                          num_warmup_steps = 100,
                                          num_training_steps = num_steps)
+            self.model = DDP(self.model, device_ids = [self.gpu_id])
             total_loss = 0
 
         idx = 0
@@ -112,21 +110,19 @@ class Trainer:
 
                     if current_steps % display_steps == 0:
                         print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')
-                            
-                    if current_steps % len(train_dataloader) == 0:
-                        eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
-                        print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps} -- val_loss: {eval_["loss"]}')
-                        print("----------------------------- End of epoch {} -----------------------------".format(epoch + 1))
                         
-                    if save_checkpoint is True:
-                        if current_steps % save_steps == 0 or current_steps % len(train_dataloader) == 0:
-                            print("Saving..........")
-                            torch.save({"model_state_dict": self.model.module.state_dict(),
-                                        "optimizer_state_dict": self.optimizer.state_dict(),
-                                        "scaler_state_dict": self.scaler.state_dict(),
-                                        "lr_scheduler_state_dict": lr_scheduler.state_dict(),
-                                        "current_steps": current_steps,
-                                        "total_loss": total_loss},
-                                        save_name)
-                            print("****** Save successfully ******")
+             eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
+             print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps} -- val_loss: {eval_["loss"]}')
+             print("----------------------------- End of epoch {} -----------------------------".format(epoch + 1))
+                        
+             if save_checkpoint is True and idx == current_steps:
+                 print("Saving..........")
+                 torch.save({"model_state_dict": self.model.module.state_dict(),
+                             "optimizer_state_dict": self.optimizer.state_dict(),
+                             "scaler_state_dict": self.scaler.state_dict(),
+                             "lr_scheduler_state_dict": lr_scheduler.state_dict(),
+                             "current_steps": current_steps,
+                             "total_loss": total_loss},
+                             save_name)
+                print("****** Save successfully ******")
                             
