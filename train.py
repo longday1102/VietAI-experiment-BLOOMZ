@@ -1,7 +1,7 @@
 import torch
 from torch.optim import AdamW
 from torch.nn.parallel import DistributedDataParallel as DDP
-from tqdm.auto import tqdm
+from tqdm import tqdm
 from transformers import get_scheduler
 import os
 
@@ -57,7 +57,6 @@ class Trainer:
             current_steps = checkpoint["current_steps"]
             self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             num_steps = num_update_steps_per_epoch * self.epochs - current_steps
-            progress_bar = tqdm(range(num_steps))
             lr_scheduler = get_scheduler("cosine",
                                          optimizer = self.optimizer,
                                          num_warmup_steps = 0,
@@ -71,7 +70,6 @@ class Trainer:
         else:
             current_steps = 0
             num_steps = num_update_steps_per_epoch * self.epochs
-            progress_bar = tqdm(range(num_steps))
             lr_scheduler = get_scheduler("cosine",
                                          optimizer = self.optimizer,
                                          num_warmup_steps = 100,
@@ -109,18 +107,17 @@ class Trainer:
                         if idx % self.gradient_accumulation_steps == 0:
                             self.optimizer.step()
                             lr_scheduler.step()
-                    
-                    progress_bar.update(1)
+
                     current_steps += 1
 
                     if current_steps % display_steps == 0 and self.is_master_process():
                         print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')
                         
-            # eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
-            # print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps} -- val_loss: {eval_["loss"]}')
-            # print("----------------------------- End of epoch {} -----------------------------".format(epoch + 1))
             if self.is_master_process():
-                print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')           
+                eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
+                print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps} -- val_loss: {eval_["loss"]}')
+                print("----------------------------- End of epoch {} -----------------------------".format(epoch + 1)) 
+                
                 if save_checkpoint is True and idx == current_steps:
                     print("Saving..........")
                     torch.save({"model_state_dict": self.model.module.state_dict(),
