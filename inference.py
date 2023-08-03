@@ -19,7 +19,7 @@ class Inference:
         self.device = device
         self.tokenizer = AutoTokenizer.from_pretrained(model_for_tokenizer)
         if from_checkpoint is True and from_hub is False:
-            self.model = AutoModelForCausalLM.from_pretrained(model_checkpoint)
+            self.model = AutoModelForCausalLM.from_pretrained(model_checkpoint).half()
             lora_config = LoraConfig(r = 8,
                                     lora_alpha = 16,
                                     lora_dropout = 0.05,
@@ -29,7 +29,7 @@ class Inference:
             self.model.load_state_dict(model_from_checkpoint["model_state_dict"])
         elif from_checkpoint is False and from_hub is True:
             config = PeftConfig.from_pretrained(model_from_hub)
-            self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path)
+            self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path).half()
             self.model = PeftModel.from_pretrained(self.model, model_from_hub)
         self.model.to(device)
 
