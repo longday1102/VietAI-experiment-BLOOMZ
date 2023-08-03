@@ -31,6 +31,7 @@ class Inference:
             config = PeftConfig.from_pretrained(model_from_hub)
             self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path)
             self.model = PeftModel.from_pretrained(self.model, model_from_hub)
+        self.model.to(device)
 
     def __call__(self,
                  instruction: str,
