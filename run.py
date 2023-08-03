@@ -35,7 +35,7 @@ if __name__ == "__main__":
     dataset = data_prcess.load_data()
     prompter = Prompter()
 
-    splited_dataset = dataset.train_test_split(test_size = 0.05, seed = 42)
+    splited_dataset = dataset.train_test_split(test_size = 0.99, seed = 42)
 
     # Model inputs
     model_inputs = MODEL_INPUTS(prompter =  prompter,
