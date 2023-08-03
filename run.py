@@ -13,6 +13,14 @@ from torch.cuda.amp import GradScaler, autocast
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument("--model_checkpoint", required=True, type=str)
+    parser.add_argument("--test_size", required=True, type=float)
+    parser.add_argument("--max_length", default=512, type=int)
+    parser.add_argument("--batch_size", required=True, type=int)                    
+    parser.add_argument("--display_steps", default=200, type=int)
+    parser.add_argument("--save_name", required=True, type=str)
+    parser.add_argument("--checkpoint", default=None, type=str)
+    args = parser.parse_args()
     
     # Mixed precision
     mixed_precision = torch.float16 if torch.cuda.is_available() else torch.bfloat16
@@ -27,7 +35,7 @@ if __name__ == "__main__":
     # Tokenizer and Model
     config = Config()
     tokenizer = config.tokenizer(model_checkpoint = "bigscience/bloomz")
-    model = config.load_pretrained_model(model_checkpoint = "bigscience/bloomz-1b7", device_map = {"": torch.device(f"cuda:{local_rank}")})
+    model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = {"": torch.device(f"cuda:{local_rank}")})
     lora_model = config.add_lora(model = model, r = 8, lora_alpha = 16, lora_dropout = 0.05)
 
     # Dataset
@@ -35,12 +43,12 @@ if __name__ == "__main__":
     dataset = data_prcess.load_data()
     prompter = Prompter()
 
-    splited_dataset = dataset.train_test_split(test_size = 0.05, seed = 42)
+    splited_dataset = dataset.train_test_split(test_size = args.test_size, seed = 42)
 
     # Model inputs
     model_inputs = MODEL_INPUTS(prompter =  prompter,
                                 tokenizer = tokenizer,
-                                max_length = 512)
+                                max_length = args.max_length)
     
     train_data = splited_dataset["train"].shuffle().map(model_inputs.generate_and_tokenize_prompt)
     valid_data = splited_dataset["test"].map(model_inputs.generate_and_tokenize_prompt)
@@ -53,7 +61,7 @@ if __name__ == "__main__":
 
     train_dataloader, valid_dataloader = model_inputs.prepare_dataloader(train_data,
                                                                          valid_data,
-                                                                         batch_size = 2)
+                                                                         batch_size = args.batch_size)
     
     # Train
     trainer = Trainer(lr = 3e-4,
@@ -64,11 +72,6 @@ if __name__ == "__main__":
                       mixed_precision = mixed_precision,
                       scaler = scaler,
                       ctx = ctx)
-    
-    parser.add_argument("--display_steps", default=200, type=int)
-    parser.add_argument("--save_name", required=True, type=str)
-    parser.add_argument("--checkpoint", default=None, type=str)
-    args = parser.parse_args()
     
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
