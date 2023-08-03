@@ -29,7 +29,7 @@ class Inference:
             self.model.load_state_dict(model_from_checkpoint["model_state_dict"])
         elif from_checkpoint is False and from_hub is True:
             config = PeftConfig.from_pretrained(model_from_hub)
-            self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path, load_in_8bit = True, device_map = "auto").half()
+            self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path, load_in_8bit = True, torch_dtype = torch.float16, device_map = "auto")
             self.model = PeftModel.from_pretrained(self.model, model_from_hub)
         self.model.to(device)
 
@@ -54,7 +54,7 @@ class Inference:
         text = self.tokenizer.batch_decode(outputs, skip_special_tokens = True)[0]
         response = self.prompt_process.get_response(text)
         if target is not None:
-            return {"label": target,
+            return {"target": target,
                   "response": response}
         else:
             return {"response": response}
