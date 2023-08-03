@@ -16,7 +16,8 @@ if __name__ == "__main__":
     parser.add_argument("--model_checkpoint", required=True, type=str)
     parser.add_argument("--test_size", required=True, type=float)
     parser.add_argument("--max_length", default=512, type=int)
-    parser.add_argument("--batch_size", required=True, type=int)                    
+    parser.add_argument("--batch_size", required=True, type=int)
+    parser.add_argument("--epochs", required=True, type=int)
     parser.add_argument("--display_steps", default=200, type=int)
     parser.add_argument("--save_name", required=True, type=str)
     parser.add_argument("--checkpoint", default=None, type=str)
@@ -65,7 +66,7 @@ if __name__ == "__main__":
     
     # Train
     trainer = Trainer(lr = 3e-4,
-                      epochs = 3,
+                      epochs = args.epochs,
                       model = lora_model,
                       gradient_accumulation_steps = 4,
                       gpu_id = local_rank,
