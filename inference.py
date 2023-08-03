@@ -10,7 +10,7 @@ class Inference:
                  model_checkpoint: str,
                  model_for_tokenizer: str,
                  model_from_hub: str = None,
-                 model_from_checkpoint: str = None,
+                 model_from_checkpoint = None,
                  from_hub: bool = False,
                  from_checkpoint: bool = False,
                  device = device):
