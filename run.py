@@ -35,7 +35,7 @@ if __name__ == "__main__":
     dataset = data_prcess.load_data()
     prompter = Prompter()
 
-    splited_dataset = dataset.train_test_split(test_size = 0.95, seed = 42)
+    splited_dataset = dataset.train_test_split(test_size = 0.05, seed = 42)
 
     # Model inputs
     model_inputs = MODEL_INPUTS(prompter =  prompter,
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     
     # Train
     trainer = Trainer(lr = 3e-4,
-                      epochs = 1,
+                      epochs = 3,
                       model = lora_model,
                       gradient_accumulation_steps = 4,
                       gpu_id = local_rank,
