@@ -19,7 +19,7 @@ class Inference:
         self.device = device
         self.tokenizer = AutoTokenizer.from_pretrained(model_for_tokenizer)
         if from_checkpoint is True and from_hub is False:
-            self.model = AutoModelForCausalLM.from_pretrained(model_checkpoint, load_in_8bit = True, device_map = "auto").half()
+            self.model = AutoModelForCausalLM.from_pretrained(model_checkpoint, load_in_8bit = True, torch_dtype = torch.float16, device_map = "auto")
             lora_config = LoraConfig(r = 8,
                                     lora_alpha = 16,
                                     lora_dropout = 0.05,
