@@ -112,7 +112,6 @@ class Trainer:
 
                     if current_steps % display_steps == 0 and self.is_master_process():
                         print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')
-                        print()
                         
             if self.is_master_process():
                 eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
