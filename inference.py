@@ -38,10 +38,8 @@ class Inference:
                  input: str = None,
                  target: str = None):
         prompt = self.prompt_process.generate_prompt(instruction = instruction, input = input)
+        prompt += " " + self.tokenizer.eos_token
         inputs = self.tokenizer(prompt, return_tensors = "pt")
-        if inputs["input_ids"][-1] != self.tokenizer.eos_token_id:
-            inputs["input_ids"].append(self.tokenizer.eos_token_id)
-            inputs["attention_mask"].append(1)
         inputs = {k:v.to(self.device) for k, v in inputs.items()}
         outputs = self.model.generate(**inputs,
                                       max_new_tokens = 512,
