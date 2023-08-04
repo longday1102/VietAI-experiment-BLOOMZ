@@ -1,6 +1,7 @@
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, PeftConfig, PeftModel, get_peft_model
+import torch
 
 class Config:
     
