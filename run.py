@@ -14,12 +14,15 @@ from torch.cuda.amp import GradScaler, autocast
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", required=True, type=str)
+    parser.add_argument("--reload_pretrained_model", default = False, type=bool)
+    parser.add_argument("--model_weight_path", default = None, type=str)
     parser.add_argument("--test_size", required=True, type=float)
     parser.add_argument("--max_length", default=512, type=int)
     parser.add_argument("--batch_size", required=True, type=int)
     parser.add_argument("--epochs", required=True, type=int)
     parser.add_argument("--display_steps", default=200, type=int)
-    parser.add_argument("--save_name", required=True, type=str)
+    parser.add_argument("--save_state_name", required=True, type=str)
+    parser.add_argument("--save_model_name", required=True, type=str)
     parser.add_argument("--checkpoint", default=None, type=str)
     args = parser.parse_args()
     
@@ -36,8 +39,11 @@ if __name__ == "__main__":
     # Tokenizer and Model
     config = Config()
     tokenizer = config.tokenizer(model_checkpoint = "bigscience/bloomz")
-    model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = {"": torch.device(f"cuda:{local_rank}")})
-    lora_model = config.add_lora(model = model, r = 8, lora_alpha = 16, lora_dropout = 0.05)
+    if args.reload_pretrained_model is True:
+        lora_model = config.reload_pretrained_model(model_weight_path = args.model_weight_path, device_map = {"": torch.device(f"cuda:{local_rank}")})
+    else:
+        model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = {"": torch.device(f"cuda:{local_rank}")})
+        lora_model = config.add_lora(model = model, r = 8, lora_alpha = 16, lora_dropout = 0.05)
 
     # Dataset
     data_prcess = DataProcess(data_path = "MBZUAI/Bactrian-X", tokenizer = tokenizer)
@@ -77,8 +83,8 @@ if __name__ == "__main__":
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
                   display_steps = args.display_steps,
-                  save_name = args.save_name,
-                  save_checkpoint = True,
+                  save_state_name = args.save_state_name,
+                  save_model_name = args.save_model_name,
                   checkpoint = args.checkpoint)
     
     destroy_process_group()
