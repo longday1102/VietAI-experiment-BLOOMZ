@@ -49,11 +49,11 @@ class Trainer:
               display_steps: int,
               save_state_name: str = None,
               save_model_name: str = None,
-              checkpoint = None):
+              state_checkpoint = None):
         
         num_update_steps_per_epoch = len(train_dataloader)
                   
-        if checkpoint is not None:
+        if state_checkpoint is not None:
             current_steps = state_checkpoint["current_steps"]
             self.optimizer.load_state_dict(state_checkpoint["optimizer_state_dict"])
             num_steps = num_update_steps_per_epoch * self.epochs - current_steps
