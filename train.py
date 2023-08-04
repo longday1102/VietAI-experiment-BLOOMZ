@@ -47,24 +47,22 @@ class Trainer:
               train_dataloader,
               valid_dataloader,
               display_steps: int,
-              save_name: str = None,
-              save_checkpoint: bool = False,
+              save_state_name: str = None,
+              save_model_name: str = None,
               checkpoint = None):
         
         num_update_steps_per_epoch = len(train_dataloader)
                   
         if checkpoint is not None:
-            current_steps = checkpoint["current_steps"]
-            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            current_steps = state_checkpoint["current_steps"]
+            self.optimizer.load_state_dict(state_checkpoint["optimizer_state_dict"])
             num_steps = num_update_steps_per_epoch * self.epochs - current_steps
             lr_scheduler = get_scheduler("cosine",
                                          optimizer = self.optimizer,
                                          num_warmup_steps = 0,
                                          num_training_steps = num_steps)
-            lr_scheduler.load_state_dict(checkpoint["lr_scheduler_state_dict"])
-            self.scaler.load_state_dict(checkpoint["scaler_state_dict"])
-            self.model.load_state_dict(checkpoint["model_state_dict"])
-            self.model = DDP(self.model, device_ids = [self.gpu_id])
+            lr_scheduler.load_state_dict(state_checkpoint["lr_scheduler_state_dict"])
+            self.scaler.load_state_dict(state_checkpoint["scaler_state_dict"])
             total_loss = checkpoint["total_loss"]
 
         else:
@@ -74,9 +72,9 @@ class Trainer:
                                          optimizer = self.optimizer,
                                          num_warmup_steps = 100,
                                          num_training_steps = num_steps)
-            self.model = DDP(self.model, device_ids = [self.gpu_id])
             total_loss = 0
 
+        self.model = DDP(self.model, device_ids = [self.gpu_id])
         idx = 0
         for epoch in range(self.epochs):
             
@@ -120,12 +118,12 @@ class Trainer:
                 
                 if save_checkpoint is True and idx == current_steps:
                     print("Saving..........")
-                    torch.save({"model_state_dict": self.model.module.state_dict(),
-                                "optimizer_state_dict": self.optimizer.state_dict(),
+                    self.model.module.save_pretrained(save_model_name)
+                    torch.save({"optimizer_state_dict": self.optimizer.state_dict(),
                                 "scaler_state_dict": self.scaler.state_dict(),
                                 "lr_scheduler_state_dict": lr_scheduler.state_dict(),
                                 "current_steps": current_steps,
                                 "total_loss": total_loss},
-                                save_name)
+                                save_state_name)
                     print("****** Save successfully ******")
                             
