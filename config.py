@@ -9,7 +9,7 @@ class Config:
         return tok
     
     def load_pretrained_model(self, model_checkpoint, device_map):
-        model = AutoModelForCausalLM.from_pretrained(model_checkpoint, device_map = device_map).half()
+        model = AutoModelForCausalLM.from_pretrained(model_checkpoint, device_map = device_map, torch_dtype = torch.float16)
         return model
     
     def add_lora(self, model, r: int, lora_alpha: int, lora_dropout: float):
@@ -19,4 +19,10 @@ class Config:
                                  bias = "none",
                                  task_type = "CAUSAL_LM")
         lora_model = get_peft_model(model, lora_config)
+        return lora_model
+
+    def reload_pretrained_model(self, model_weigth_path, device_map = None):
+        config = PeftConfig.from_pretrained(model_weigth_path)
+        model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path, device_map = device_map, torch_dtype = torch.float16)
+        lora_model = PeftModel.from_pretrained(model, model_weigth_path)
         return lora_model
