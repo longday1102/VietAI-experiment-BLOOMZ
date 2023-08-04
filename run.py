@@ -14,7 +14,6 @@ from torch.cuda.amp import GradScaler, autocast
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", required=True, type=str)
-    parser.add_argument("--reload_pretrained_model", default=False, type=bool)
     parser.add_argument("--model_weight_path", default = None, type=str)
     parser.add_argument("--test_size", required=True, type=float)
     parser.add_argument("--max_length", default=512, type=int)
@@ -39,7 +38,7 @@ if __name__ == "__main__":
     # Tokenizer and Model
     config = Config()
     tokenizer = config.tokenizer(model_checkpoint = "bigscience/bloomz")
-    if args.reload_pretrained_model is True:
+    if args.model_weight_path:
         lora_model = config.reload_pretrained_model(model_weight_path = args.model_weight_path, device_map = {"": torch.device(f"cuda:{local_rank}")})
     else:
         model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = {"": torch.device(f"cuda:{local_rank}")})
