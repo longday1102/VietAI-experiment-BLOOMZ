@@ -14,7 +14,7 @@ from torch.cuda.amp import GradScaler, autocast
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", required=True, type=str)
-    parser.add_argument("--reload_pretrained_model", required=True, type=bool)
+    parser.add_argument("--reload_pretrained_model", default=False, type=bool)
     parser.add_argument("--model_weight_path", default = None, type=str)
     parser.add_argument("--test_size", required=True, type=float)
     parser.add_argument("--max_length", default=512, type=int)
