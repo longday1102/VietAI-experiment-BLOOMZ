@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument("--display_steps", default=200, type=int)
     parser.add_argument("--save_state_name", required=True, type=str)
     parser.add_argument("--save_model_name", required=True, type=str)
-    parser.add_argument("--checkpoint", default=None, type=str)
+    parser.add_argument("--state_checkpoint", default=None, type=str)
     args = parser.parse_args()
     
     # Mixed precision
@@ -85,6 +85,6 @@ if __name__ == "__main__":
                   display_steps = args.display_steps,
                   save_state_name = args.save_state_name,
                   save_model_name = args.save_model_name,
-                  checkpoint = args.checkpoint)
+                  state_checkpoint = args.state_checkpoint)
     
     destroy_process_group()
