@@ -63,7 +63,7 @@ class Trainer:
                                          num_training_steps = num_steps)
             lr_scheduler.load_state_dict(state_checkpoint["lr_scheduler_state_dict"])
             self.scaler.load_state_dict(state_checkpoint["scaler_state_dict"])
-            total_loss = checkpoint["total_loss"]
+            total_loss = state_checkpoint["total_loss"]
 
         else:
             current_steps = 0
