@@ -116,7 +116,7 @@ class Trainer:
                 print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps} -- val_loss: {eval_["loss"]}')
                 print("----------------------------- End of epoch {} -----------------------------".format(epoch + 1)) 
                 
-                if save_checkpoint is True and idx == current_steps:
+                if idx == current_steps:
                     print("Saving..........")
                     self.model.module.save_pretrained(save_model_name)
                     torch.save({"optimizer_state_dict": self.optimizer.state_dict(),
