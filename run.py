@@ -78,12 +78,15 @@ if __name__ == "__main__":
                       mixed_precision = mixed_precision,
                       scaler = scaler,
                       ctx = ctx)
+
+    if args.state_checkpoint:
+        state_checkpoint = torch.load(args.state_checkpoint)
     
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
                   display_steps = args.display_steps,
                   save_state_name = args.save_state_name,
                   save_model_name = args.save_model_name,
-                  state_checkpoint = args.state_checkpoint)
+                  state_checkpoint = state_checkpoint)
     
     destroy_process_group()
