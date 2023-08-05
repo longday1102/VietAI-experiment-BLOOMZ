@@ -1,6 +1,6 @@
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import LoraConfig, AutoPeftModelForCausalLM, get_peft_model
+from peft import LoraConfig, PeftConfig, PeftModel, get_peft_model
 import torch
 
 class Config:
@@ -23,5 +23,7 @@ class Config:
         return lora_model
 
     def reload_pretrained_model(self, model_weight_path, device_map = None):
-        lora_model = AutoPeftModelForCausalLM.from_pretrained(model_weight_path, device_map = device_map, torch_dtype = torch.float16)
+       config = PeftConfig.from_pretrained(model_weight_path)
+        model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path, device_map = device_map, torch_dtype = torch.float16)
+        lora_model = PeftModel.from_pretrained(model, model_weight_path, is_trainable = True)
         return lora_model
