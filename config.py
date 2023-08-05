@@ -23,5 +23,5 @@ class Config:
         return lora_model
 
     def reload_pretrained_model(self, model_weight_path, device_map = None):
-        lora_model = AutoPeftModelForCausalLM.from_pretrained(model_weight_path, device_map = device_map)
+        lora_model = AutoPeftModelForCausalLM.from_pretrained(model_weight_path, device_map = device_map, torch_dtype = torch.float16)
         return lora_model
