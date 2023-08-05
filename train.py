@@ -111,19 +111,18 @@ class Trainer:
                     if current_steps % display_steps == 0 and self.is_master_process():
                         print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')
                         
-            if self.is_master_process():
+            if self.is_master_process() and idx == current_steps:
                 eval_ = self.eval_(model = self.model, dataset = valid_dataloader)
                 print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps} -- val_loss: {eval_["loss"]}')
                 print("----------------------------- End of epoch {} -----------------------------".format(epoch + 1)) 
                 
-                if idx == current_steps:
-                    print("Saving..........")
-                    self.model.module.save_pretrained(save_model_name)
-                    torch.save({"optimizer_state_dict": self.optimizer.state_dict(),
-                                "scaler_state_dict": self.scaler.state_dict(),
-                                "lr_scheduler_state_dict": lr_scheduler.state_dict(),
-                                "current_steps": current_steps,
-                                "total_loss": total_loss},
-                                save_state_name)
-                    print("****** Save successfully ******")
+                print("Saving..........")
+                self.model.module.save_pretrained(save_model_name)
+                torch.save({"optimizer_state_dict": self.optimizer.state_dict(),
+                            "scaler_state_dict": self.scaler.state_dict(),
+                            "lr_scheduler_state_dict": lr_scheduler.state_dict(),
+                            "current_steps": current_steps,
+                            "total_loss": total_loss},
+                            save_state_name)
+                print("****** Save successfully ******")
                             
