@@ -20,8 +20,7 @@ class Inference:
         config = PeftConfig.from_pretrained(model_weight_path)
         self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path,
                                                           device_map = "auto",
-                                                          torch_dtype = torch.float16,
-                                                          load_in_8bit = True)
+                                                          torch_dtype = torch.float16)
         self.model = PeftModel.from_pretrained(self.model, model_weight_path)
 
     def __call__(self,
