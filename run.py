@@ -81,6 +81,8 @@ if __name__ == "__main__":
 
     if args.state_checkpoint:
         state_checkpoint = torch.load(args.state_checkpoint)
+    else:
+        state_checkpoint = args.state_checkpoint
     
     trainer.train(train_dataloader = train_dataloader,
                   valid_dataloader = valid_dataloader,
